@@ -1,0 +1,109 @@
+namespace PersonalMenu;
+
+
+public class Project
+{
+    public delegate void WhichMenu(int result);
+
+    // для выхода в меню из метода
+    public static string lastMenuName = "Меню";
+    public static string[] lastMenuText;
+    public static WhichMenu LastMenuChousing;
+
+    // для выхода в другое меню
+    public static string MenuName;
+    public static string[] MenuText;
+    public static WhichMenu MenuChousing;
+
+    /// <summary>
+    /// Вызов меню. menuText - текст меню, menuChousing - делегат, отвечающий за то, 
+    /// какие методы будут выполняться в меню, menuName - имя меню. 
+    /// </summary>
+    public static void Menu(string[] menuText, WhichMenu menuChousing, string menuName = "Меню")
+    {
+        Console.Clear();
+        lastMenuText = menuText;
+        LastMenuChousing = menuChousing;
+        lastMenuName = menuName;
+
+        Paint.WriteLine($"{menuName}",ConsoleColor.Green);
+        for (int i = 0; i < menuText.Length; i++)
+        {
+            string item = menuText[i];
+            if (i == 0) Paint.WriteLine(menuText[i], ConsoleColor.Red);
+            else Console.WriteLine(item);
+        }
+        int result = Keys(menuText);
+
+        menuChousing(result);
+    }
+    static int Keys(string[] menuText)
+    {
+        int num = 0;
+        bool flag = false;
+        do
+        {
+            ConsoleKeyInfo consoleKeyInfo = Console.ReadKey();
+            switch (consoleKeyInfo.Key)
+            {
+                case ConsoleKey.UpArrow: { num--; if (num != -1) PrintText(num, menuText); }; break;
+                case ConsoleKey.DownArrow: { num++; if (num != menuText.Length) PrintText(num, menuText); }; break;
+                case ConsoleKey.Enter: { flag = true; }; break;
+            }
+
+            if (num == menuText.Length)
+            {
+                num = 0;
+                PrintText(num, menuText);
+            }
+            if (num == -1)
+            {
+                num = menuText.Length - 1;
+                PrintText(num, menuText);
+            }
+
+        } while (!flag);
+        return num;
+    }
+
+    static void PrintText(int button, string[] menuText)
+    {
+        Console.Clear();
+        Paint.WriteLine(lastMenuName, ConsoleColor.Green);
+        foreach (string item in menuText)
+        {
+            if (item == menuText[button]) Paint.WriteLine(item,ConsoleColor.Red);
+            else Console.WriteLine(item);
+        }
+    }
+    /// <summary>
+    /// Выход из метода в последнее использованное меню.
+    /// </summary>
+    public static void Exit()
+    {
+        Paint.Write("\nНажмите любую кнопку для выхода: ", ConsoleColor.Green);
+        Console.ReadKey();
+        Menu(lastMenuText,LastMenuChousing,lastMenuName);
+    }
+    public static void MenuExit()
+    {
+        Menu(MenuText, MenuChousing, MenuName);
+    }
+}
+
+public class Paint
+{
+    public static void Write(string text, ConsoleColor color)
+    {
+        Console.ForegroundColor = color;
+        Console.Write(text);
+        Console.ForegroundColor = ConsoleColor.Gray;
+    }
+
+    public static void WriteLine(string text, ConsoleColor color)
+    {
+        Console.ForegroundColor = color;
+        Console.WriteLine(text);
+        Console.ForegroundColor = ConsoleColor.Gray;
+    }
+}
